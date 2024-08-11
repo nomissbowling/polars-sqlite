@@ -1,0 +1,32 @@
+[package]
+name = "polars-sqlite"
+version = "0.1.0" # change with html_root_url in lib.rs
+edition = "2021"
+authors = ["nomissbowling <nomissbowling@yahoo.co.jp>"]
+
+description = "Rust sqlite3 traits for polars dataframe"
+keywords = ["sqlite", "dataframe", "polars", "plotters", "gui"]
+categories = ["development-tools", "database", "data-structures"]
+license = "MIT"
+
+documentation = "https://docs.rs/polars-sqlite/"
+homepage = "https://crates.io/crates/polars-sqlite"
+repository = "https://github.com/nomissbowling/polars-sqlite"
+
+readme = "README.md"
+
+#build = "build.rs"
+
+[lib]
+name = "polars_sqlite"
+
+[dependencies]
+sqlite = { version = "=0.36.0" }
+
+egui-dataframe = { version = "=0.3.0" }
+
+polars-utils = { version = "=0.25.1" }
+polars = { version = "=0.25.1", features = ["describe", "lazy", "object", "strings", "dtype-full", "dtype-categorical", "list_eval", "rows", "round_series", "rank"] }
+
+itertools = { version = "=0.13.0" }
+iter-tuple = { version = "=0.2.5" }
