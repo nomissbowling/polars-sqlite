@@ -1,11 +1,11 @@
-#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.1.1")]
+#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.0")]
 //! Rust sqlite3 traits for polars dataframe
 //!
 
 use std::error::Error;
 use polars::{series::Series, prelude::{ChunkApply}}; // , NamedFrom
 use polars::prelude::{DataFrame, AnyValue, Schema, DataType}; // , Field
-use egui_dataframe::{row_schema, named_schema, to_any};
+use anyvalue_dataframe::{row_schema, named_schema, to_any};
 use sqlite;
 
 use itertools::Itertools;
@@ -27,7 +27,7 @@ pub trait IntoAnyValueVec<'a> {
 /// - n: &amp;Vec&lt;&amp;str&gt;
 /// - p: &amp;[(&amp;str, sqlite::Value)]
 /// - f: FnMut(&amp;'a sqlite::Row) -> Vec&lt;AnyValue&lt;'_&gt;&gt;
-/// - df_from_sl3("db.sl3", "select * from tbl;", p, f).expect("df")
+/// - df_from_sl3("db.sl3", n, "select * from tbl;", p, f).expect("df")
 pub fn df_from_sl3<F>(dbn: &str, n: &Vec<&str>,
   qry: &str, p: &[(&str, sqlite::Value)],
   mut f: F) -> Result<DataFrame, Box<dyn Error>>
@@ -53,7 +53,7 @@ pub fn df_from_sl3<F>(dbn: &str, n: &Vec<&str>,
 /// - t: &amp;Vec&lt;DataType&gt;
 /// - p: &amp;[(&amp;str, sqlite::Value)]
 /// - f: FnMut(&amp;'a sqlite::Row) -> Vec&lt;AnyValue&lt;'_&gt;&gt;
-/// - df_from_sl3_type("db.sl3", "select * from tbl;", n, t, p, f).expect("df")
+/// - df_from_sl3_type("db.sl3", n, t, "select * from tbl;", p, f).expect("df")
 pub fn df_from_sl3_type<F>(dbn: &str, n: &Vec<&str>, t: &Vec<DataType>,
   qry: &str, p: &[(&str, sqlite::Value)],
   mut f: F) -> Result<DataFrame, Box<dyn Error>>

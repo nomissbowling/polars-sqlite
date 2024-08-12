@@ -10,6 +10,7 @@ Requirements
 - [https://crates.io/crates/sqlite](https://crates.io/crates/sqlite)
 - [https://crates.io/crates/polars](https://crates.io/crates/polars)
 - [https://crates.io/crates/iter-tuple](https://crates.io/crates/iter-tuple)
+- [https://crates.io/crates/anyvalue-dataframe](https://crates.io/crates/anyvalue-dataframe)
 
 
 Links
