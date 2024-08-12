@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.1.1")]
 //! Rust sqlite3 traits for polars dataframe
 //!
 
@@ -80,6 +80,22 @@ pub fn df_from_sl3_type<F>(dbn: &str, n: &Vec<&str>, t: &Vec<DataType>,
   }).fold(df, |s, a| s.vstack(&a).expect("vstack"));
   // }).reduce(|s, a| s.vstack(&a).expect("vstack")).expect("reduce"); // len>0
   Ok(df)
+}
+
+/// cols
+/// - an: (bool, usize) = (when bool is true, skip usize number)
+pub fn sl3_cols(n: &Vec<&str>, an: (bool, usize)) -> String {
+  n.iter().enumerate().map(|(i, s)|
+    if an.0 && an.1 == i { None } else { Some(format!("{}", s)) }
+  ).filter_map(|s| s).collect::<Vec<_>>().join(", ")
+}
+
+/// tags
+/// - an: (bool, usize) = (when bool is true, skip usize number)
+pub fn sl3_tags(n: &Vec<&str>, an: (bool, usize)) -> String {
+  n.iter().enumerate().map(|(i, s)|
+    if an.0 && an.1 == i { None } else { Some(format!(":{}", s)) }
+  ).filter_map(|s| s).collect::<Vec<_>>().join(", ")
 }
 
 /// insert
