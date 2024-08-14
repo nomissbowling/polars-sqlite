@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.0")]
+#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.4")]
 //! Rust sqlite3 traits for polars dataframe
 //!
 
@@ -99,13 +99,15 @@ pub fn sl3_tags(n: &Vec<&str>, an: (bool, usize)) -> String {
 }
 
 /// insert
-pub fn sl3_insert<T>(dbn: &str, qry: &str, v: &Vec<T>) ->
-  Result<(), Box<dyn Error>>
-  where T: for <'b> From<&'b sqlite::Row> + ToSqlite3ValueVec {
+/// - an: (bool, usize) = (when bool is true, skip usize number)
+pub fn sl3_insert<T>(dbn: &str, qry: &str, v: &Vec<T>, an: (bool, usize)) ->
+  Result<(), Box<dyn Error>> where T: ToSqlite3ValueVec {
   let cn = sqlite::open(dbn)?;
   for r in v.iter() {
     let mut stmt = cn.prepare(qry)?;
-    stmt.bind_iter::<_, (_, sqlite::Value)>(r.to_sqlite3_vec())?;
+    let mut s = r.to_sqlite3_vec();
+    if an.0 { s.remove(an.1); } // will panic when out of index range
+    stmt.bind_iter::<_, (_, sqlite::Value)>(s)?;
     stmt.next()?;
   }
   Ok(())
