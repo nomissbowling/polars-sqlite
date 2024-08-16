@@ -1,6 +1,6 @@
 [package]
 name = "polars-sqlite"
-version = "0.3.4" # change with html_root_url in lib.rs
+version = "0.3.5" # change with html_root_url in lib.rs
 edition = "2021"
 authors = ["nomissbowling <nomissbowling@yahoo.co.jp>"]
 
@@ -29,4 +29,4 @@ polars-utils = { version = "=0.25.1" }
 polars = { version = "=0.25.1", features = ["describe", "lazy", "object", "strings", "dtype-full", "dtype-categorical", "list_eval", "rows", "round_series", "rank"] }
 
 itertools = { version = "=0.13.0" }
-iter-tuple = { version = "=0.3.4" }
+iter-tuple = { version = "=0.3.5" }

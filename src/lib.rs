@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.4")]
+#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.5")]
 //! Rust sqlite3 traits for polars dataframe
 //!
 
@@ -98,17 +98,40 @@ pub fn sl3_tags(n: &Vec<&str>, an: (bool, usize)) -> String {
   ).filter_map(|s| s).collect::<Vec<_>>().join(", ")
 }
 
+/// insert row
+pub fn sl3_insert_row<T>(cn: &sqlite::Connection, qry: &str,
+  row: &T, an: (bool, usize)) -> Result<(), Box<dyn Error>>
+  where T: ToSqlite3ValueVec {
+  let mut stmt = cn.prepare(qry)?;
+  let mut s = row.to_sqlite3_vec();
+  if an.0 { s.remove(an.1); } // will panic when out of index range
+  stmt.bind_iter::<_, (_, sqlite::Value)>(s)?;
+  stmt.next()?;
+  Ok(())
+}
+
 /// insert
 /// - an: (bool, usize) = (when bool is true, skip usize number)
-pub fn sl3_insert<T>(dbn: &str, qry: &str, v: &Vec<T>, an: (bool, usize)) ->
-  Result<(), Box<dyn Error>> where T: ToSqlite3ValueVec {
+pub fn sl3_insert<T>(dbn: &str, qry: &str,
+  v: &Vec<T>, an: (bool, usize)) -> Result<(), Box<dyn Error>>
+  where T: ToSqlite3ValueVec {
   let cn = sqlite::open(dbn)?;
-  for r in v.iter() {
-    let mut stmt = cn.prepare(qry)?;
-    let mut s = r.to_sqlite3_vec();
-    if an.0 { s.remove(an.1); } // will panic when out of index range
-    stmt.bind_iter::<_, (_, sqlite::Value)>(s)?;
-    stmt.next()?;
+  for row in v.iter() { sl3_insert_row::<T>(&cn, qry, row, an)? }
+  Ok(())
+}
+
+/// insert df
+pub fn sl3_insert_df<'a, F, G>(dbn: &str, qry: &str,
+  df: &DataFrame, an: (bool, usize), mut f: F, mut g: G) ->
+  Result<(), Box<dyn Error>> where
+  F: FnMut(&sqlite::Connection, &str, &Vec<AnyValue<'_>>, (bool, usize)) ->
+    Result<(), Box<dyn Error>>,
+  G: FnMut() -> polars::frame::row::Row<'a> {
+  let cn = sqlite::open(dbn)?;
+  let mut row = g();
+  for i in (0..df.height()).into_iter() {
+    df.get_row_amortized(i, &mut row);
+    f(&cn, qry, &row.0, an)?
   }
   Ok(())
 }
