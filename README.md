@@ -4,6 +4,11 @@ polars-sqlite
 Rust sqlite3 traits for polars dataframe
 
 
+[graph]: https://github.com/nomissbowling/polars-sqlite/blob/master/res/dtypes.png?raw=true
+![polars-sqlite][graph]
+ * https://github.com/nomissbowling/polars-sqlite/blob/master/res/dtypes.png?raw=true
+
+
 Requirements
 ------------
 

@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.5")]
+#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.6")]
 //! Rust sqlite3 traits for polars dataframe
 //!
 
