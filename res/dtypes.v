@@ -44,9 +44,9 @@ digraph dtypes {
   sqlite3Table [shape=box];
   Values [label="Vec<(&str, sqlite::Value)>", shape=box];
   sqliteRow [label="sqlite::Row", shape=box];
-  Tester [shape=circle];
-  RecTester [shape=doublecircle];
-  StTester [shape=Msquare];
+  Tester [shape=circle, fontcolor=1, color=7, fillcolor=10];
+  RecTester [shape=doublecircle, fontcolor=1, color=7, fillcolor=10];
+  StTester [shape=Msquare, fontcolor=11, color=7, fillcolor=9];
   Row [label="polars::frame::row::Row", shape=polygon, sides=6];
 
   // edge define
@@ -54,7 +54,7 @@ digraph dtypes {
     style=dashed, color=lime, fontcolor=lime];
   Values -> sqlite3Table[label="write", arrowhead=normal,
     style=bold, color=navy];
-  StTester -> Values[label=".to_sqlite3_vec()", arrowhead=normal,
+  StTester -> Values[taillabel=".to_sqlite3_vec()", arrowhead=normal,
     style=bold, color=navy];
   sqliteRow -> Tester[label="to_tester()", arrowhead=tee,
     style=dashed, color=lime, fontcolor=lime];
@@ -64,12 +64,12 @@ digraph dtypes {
     style=dotted, color=orange, fontcolor=orange];
   Tester -> StTester[taillabel="from", arrowtail=crow, dir=back,
     style=dashed, color=lime, fontcolor=lime];
-  StTester -> Tester[label=".to_tester()", arrowhead=normal,
+  StTester -> Tester[taillabel=".to_tester()", arrowhead=normal,
     color=orange, fontcolor=orange];
   RecTester -> Row[taillabel=".into_iter().collect()", arrowhead=normal];
   StTester -> Row[taillabel=".into_vec()", arrowhead=normal,
     style=dashed, color=lime, fontcolor=lime];
-  Row -> StTester[label="sttester_from()", arrowtail=crow, dir=back,
+  Row -> StTester[taillabel="from", arrowtail=crow, dir=back,
     style=bold, color=navy];
 
   {rank=min; sqlite3Table}
