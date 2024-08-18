@@ -1,11 +1,12 @@
-#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.7")]
+#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.8")]
 //! Rust sqlite3 traits for polars dataframe
 //!
 
 use std::error::Error;
 use polars::{series::Series, prelude::{ChunkApply}}; // , NamedFrom
 use polars::prelude::{DataFrame, AnyValue, Schema, DataType}; // , Field
-use anyvalue_dataframe::{row_schema, named_schema, to_any};
+use anyvalue_dataframe::{from_any, to_any};
+use anyvalue_dataframe::{row_schema, named_schema};
 use sqlite;
 
 use itertools::Itertools;
