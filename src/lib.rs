@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.8")]
+#![doc(html_root_url = "https://docs.rs/polars-sqlite/0.3.9")]
 //! Rust sqlite3 traits for polars dataframe
 //!
 
@@ -136,6 +136,81 @@ pub fn sl3_insert_df<'a, F, G>(dbn: &str, qry: &str,
   }
   Ok(())
 }
+
+/// asgns
+pub fn sl3_asgns(n: &Vec<&str>) -> String {
+  n.iter().map(|s| format!("{}=:{}", s, s)).collect::<Vec<_>>().join(", ")
+}
+
+/// kvs
+pub fn sl3_kvs<'a, T>(row: &'a T, pick: &Vec<&str>) ->
+  Vec<(&'a str, sqlite::Value)> where T: ToSqlite3ValueVec {
+  let mut s = row.to_sqlite3_vec();
+  for i in (0..s.len()).rev() { // rev index never out of range
+    if !pick.contains(&&s[i].0[1..]) { s.remove(i); }
+  }
+  s
+}
+
+/// update row
+pub fn sl3_update_row(cn: &sqlite::Connection, qry: &str,
+  p: Vec<(&str, sqlite::Value)>) -> Result<(), Box<dyn Error>> {
+  let mut stmt = cn.prepare(qry)?;
+  stmt.bind_iter::<_, (_, sqlite::Value)>(p)?;
+  stmt.next()?;
+  Ok(())
+}
+
+/// update
+/// - f: |cn, qry, row, pick| { sl3_update_row(cn, qry, sl3_kvs(row, pick)) }
+pub fn sl3_update<T, F>(dbn: &str, qry: &str,
+  v: &Vec<T>, pick: &Vec<&str>, mut f: F) -> Result<(), Box<dyn Error>> where
+  T: ToSqlite3ValueVec,
+  F: FnMut(&sqlite::Connection, &str, &T, &Vec<&str>) ->
+    Result<(), Box<dyn Error>> {
+  let cn = sqlite::open(dbn)?;
+  for row in v.iter() { f(&cn, qry, row, pick)? }
+  Ok(())
+}
+
+/// update df
+pub fn sl3_update_df<'a, F, G>(dbn: &str, qry: &str,
+  df: &DataFrame, pick: &Vec<&str>, mut f: F, mut g: G) ->
+  Result<(), Box<dyn Error>> where
+  F: FnMut(&sqlite::Connection, &str, &Vec<AnyValue<'_>>, &Vec<&str>) ->
+    Result<(), Box<dyn Error>>,
+  G: FnMut() -> polars::frame::row::Row<'a> {
+  let cn = sqlite::open(dbn)?;
+  let mut row = g();
+  for i in (0..df.height()).into_iter() {
+    df.get_row_amortized(i, &mut row);
+    f(&cn, qry, &row.0, pick)?
+  }
+  Ok(())
+}
+
+/// to sqlite3 value
+#[macro_export]
+macro_rules! to_sl3 {
+  (Int64, $v: expr) => { $v.into() };
+  (Int32, $v: expr) => { ($v as i64).into() };
+  (Int16, $v: expr) => { ($v as i64).into() };
+  (Int8, $v: expr) => { ($v as i64).into() };
+  (UInt64, $v: expr) => { ($v as i64).into() };
+  (UInt32, $v: expr) => { ($v as i64).into() };
+  (UInt16, $v: expr) => { ($v as i64).into() };
+  (UInt8, $v: expr) => { ($v as i64).into() };
+  (Float64, $v: expr) => { $v.into() }; // Decimal in polars latest
+  (Float32, $v: expr) => { ($v as f64).into() }; // Decimal in polars latest
+  (Utf8, $v: expr) => { $v.into() }; // polars version 0.25.1
+  (String, $v: expr) => { $v.into() }; // polars latest
+  (Boolean, $v: expr) => { (if $v {"T"} else {"F"}).into() };
+  (Binary, $v: expr) => { (&$v[..]).into() };
+  (Null, $v: expr) => { $v.into() }; // must check later
+  (Unknown, $v: expr) => { $v.into() }; // must check later
+  ($v: expr) => { $v.into() } // must check later
+}
+// pub to_sl3;
 
 /// for tester
 /// - create table tbl (
